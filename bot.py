@@ -84,14 +84,17 @@ def pick_n_questions(user_role, difficulty, needed, used_ids):
 def pick_20_questions(user_role):
     used_ids = set()
     final_q = []
+    # Сначала пытаемся получить 5 вопросов для каждого уровня сложности для основной роли
     final_q.extend(pick_n_questions(user_role, 1, 5, used_ids))
     final_q.extend(pick_n_questions(user_role, 2, 5, used_ids))
     final_q.extend(pick_n_questions(user_role, 3, 5, used_ids))
+    # Если итоговое количество вопросов меньше 20,
+    # добираем недостающие вопросы только из вопросов с ролью "other"
     if len(final_q) < 20:
         needed = 20 - len(final_q)
-        rows_any = query_db_for_questions(role=None, difficulty=None, exclude_ids=used_ids)
-        can_take = min(len(rows_any), needed)
-        final_q.extend(rows_any[:can_take])
+        rows_other = query_db_for_questions(role="other", difficulty=None, exclude_ids=used_ids)
+        can_take = min(len(rows_other), needed)
+        final_q.extend(rows_other[:can_take])
     return final_q[:20]
 
 ##############################################################################
